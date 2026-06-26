@@ -1187,7 +1187,7 @@ function postLowestAcceptTrial() {
         <h2 class="intro-title">Follow-up Questions</h2>
         <div class="form-question">
           <div class="question-text">Out of 100 cents, what is the lowest amount you would accept for yourself?</div>
-          <p>If your share were below this amount, the proposal would be treated as rejected.</p>
+          <p class="doc-red">If your share were below this amount, the proposal would be treated as rejected.</p>
           <div class="lowest-choice-grid" role="radiogroup" aria-label="Lowest acceptable amount">
             ${options.map(value => `
               <label class="radio-tile lowest-choice">

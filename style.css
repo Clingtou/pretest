@@ -690,7 +690,7 @@ li {
   grid-template-columns: repeat(5, minmax(70px, 1fr));
   gap: 10px;
   max-width: 620px;
-  margin-top: 18px;
+  margin-top: 46px;
 }
 
 .lowest-choice {
