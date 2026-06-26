@@ -602,21 +602,23 @@ function instructionTrial() {
     type: jsPsychHtmlButtonResponse,
     stimulus: shellHtml(`
       <h2 class="intro-title">Instructions</h2>
-      <p>In this study, you will complete a short economic decision-making task. Please read the instructions carefully. Your decisions may affect bonus payments for you and another participant. You will receive a base payment of <b>$${BASE_PAYMENT_USD.toFixed(2)}</b> for completing the study carefully.</p>
-      <p>There are two roles in this task: <span class="doc-red">proposer</span> and <span class="doc-red">receiver</span>. The proposer first decides how to divide <span class="doc-red">100 cents</span> between themself and a receiver. The receiver then has one opportunity to decide whether to accept or reject the proposer's allocation.</p>
+      <p>In this study, you will complete a short economic decision-making task. Please read the instructions carefully. Your decisions may affect bonus payments for you and another participant. You will receive a base payment of <span class="doc-red">$${BASE_PAYMENT_USD.toFixed(2)}</span> for completing the study carefully.</p>
+      <p>There are two roles in this task: <span class="doc-red">proposer</span> and <span class="doc-red">receiver</span>. The proposer decides how to divide <span class="doc-red">100 cents</span> between themself and a receiver. The receiver then decides whether to accept or reject the proposer's allocation.</p>
       <div class="instruction-flow-wrap">
         <img class="instruction-flow-image" src="instruction-flow.png" alt="Diagram showing the ultimatum game roles, proposal, receiver decision, and outcomes.">
       </div>
       <p>You have been assigned to the role of <span class="doc-red">RECEIVER</span>.</p>
-      <p>A group of proposers has already participated in this study and made allocation decisions for 100 cents. For this task, one proposal will be randomly selected from this proposer database and shown to you. The proposal will show how much money would go to you and how much money would go to the proposer. The numerical amounts shown in the proposal determine the bonus outcome.</p>
-      <p>You will have one opportunity to decide whether to accept or reject this allocation.</p>
+      <p>A group of proposers has participated in this study and made allocation decisions for 100 cents. In this task, you will see <span class="doc-red">4 proposals</span> from this proposer database. Each proposal will show how much money would go to you and how much money would go to the proposer. The numerical amounts shown in each proposal determine the possible bonus outcome.</p>
+      <p>The task has two stages.</p>
+      <p>First, in the <span class="doc-red">Choice Stage</span>, you will make an accept/reject decision for each of the <span class="doc-red">4 proposals</span>. Please consider each proposal independently.</p>
       <ul>
-        <li>If you <span class="doc-red">accept</span>, the 100-cent bonus will be divided between you and the proposer according to the proposer's allocation.</li>
-        <li>If you <span class="doc-red">reject</span>, both you and the proposer receive 0 cents from this task.</li>
+        <li>If you <span class="doc-red">accept</span> a proposal, the 100-cent bonus will be divided between you and the proposer according to that proposal.</li>
+        <li>If you <span class="doc-red">reject</span> a proposal, both you and the proposer receive 0 cents from that proposal.</li>
       </ul>
-      <p>You and the proposer will not know any personal information about each other. You will only have this one opportunity to make your decision.</p>
-      <p>After data collection is complete, <span class="doc-red">${BONUS_DRAW_PERCENT}%</span> of receivers will be randomly selected for real bonus payment. If you are selected, the proposal shown to you and your accept/reject decision will be used to determine the bonus. The outcome will be paid as a Prolific bonus. Bonus payments will be processed within two months after data collection is complete.</p>
-      <p>Therefore, please consider the allocation carefully, because your decision may affect a real bonus for both you and another participant.</p>
+      <p>After the Choice Stage, you will enter the <span class="doc-red">Evaluation Stage</span>. In this stage, you will see the same <span class="doc-red">4 proposals</span> again and answer a few questions about each proposal. These evaluation questions do not determine the bonus outcome.</p>
+      <p>You and the proposer will not know any personal information about each other.</p>
+      <p>After data collection is complete, <span class="doc-red">${BONUS_DRAW_PERCENT}%</span> of receivers will be randomly selected for real bonus payment. If you are selected, <span class="doc-red">one of your 4 choices from the Choice Stage will be randomly selected</span>, and the outcome of that selected choice will be used to determine the bonus for you and the corresponding proposer. The bonus will be paid as a Prolific bonus. Bonus payments will be processed within two months after data collection is complete.</p>
+      <p>Therefore, please consider each allocation carefully, because your choices may affect a real bonus for both you and another participant.</p>
     `, STUDY_TITLE, "instruction-shell"),
     choices: ["Continue"],
     data: { phase: "instructions" }
@@ -627,17 +629,18 @@ function comprehensionTrial(conditionInfo) {
   const questions = [
     {
       name: "role",
-      text: "1. What role will you have in this study?",
+      text: "1. Which statement is correct about this study?",
       options: [
-        { value: "receiver", label: "Receiver" },
-        { value: "proposer", label: "Proposer" },
-        { value: "observer", label: "Observer" }
+        { value: "proposer_divide", label: "You will be the proposer and decide how to divide 100 cents across 4 proposals." },
+        { value: "evaluation_only", label: "You will only answer evaluation questions; your accept/reject choices will not be recorded." },
+        { value: "all_choices_paid", label: "You will make 4 choices, but every one of the 4 choices will be paid as a bonus if you are selected." },
+        { value: "receiver_two_stage", label: "You will be the receiver, make 4 accept/reject choices in the Choice Stage, and then evaluate the same 4 proposals in the Evaluation Stage." }
       ],
-      correct: "receiver"
+      correct: "receiver_two_stage"
     },
     {
       name: "accept",
-      text: "2. Example: the proposal gives you 50 cents and gives the other participant 50 cents. What happens if you accept this proposal?",
+      text: "2. Suppose this proposal is selected for bonus payment: the proposal gives you 50 cents and gives the other participant 50 cents. What happens if you accept this proposal?",
       exampleHtml: `
           <div class="comprehension-example">
           <div class="example-chart">${exampleRoseChartHtml(conditionInfo)}</div>
@@ -652,7 +655,7 @@ function comprehensionTrial(conditionInfo) {
     },
     {
       name: "reject",
-      text: "3. Example: the proposal gives you 50 cents and gives the other participant 50 cents. What happens if you reject this proposal?",
+      text: "3. Suppose this proposal is selected for bonus payment: the proposal gives you 50 cents and gives the other participant 50 cents. What happens if you reject this proposal?",
       exampleHtml: `
         <div class="comprehension-example">
           <div class="example-chart">${exampleRoseChartHtml(conditionInfo)}</div>
@@ -669,15 +672,15 @@ function comprehensionTrial(conditionInfo) {
       name: "bonus",
       text: "4. How are bonus outcomes determined?",
       options: [
-        { value: "ten_percent_real", label: "10% of receivers are randomly selected. For selected receivers, the bonus will be allocated according to the receiver's decision and paid as a Prolific bonus." },
-        { value: "everyone_real", label: "Every receiver receives the game outcome as a bonus." },
+        { value: "ten_percent_real", label: "10% of receivers are randomly selected. If selected, one of their 4 choices is randomly selected and used to determine the bonus." },
+        { value: "everyone_real", label: "10% of receivers are randomly selected, and all 4 choices are paid as bonuses." },
         { value: "no_real_bonus", label: "The game is hypothetical and no bonuses can be paid." }
       ],
       correct: "ten_percent_real"
     },
     {
       name: "total",
-      text: "5. How much money is divided in the game proposal?",
+      text: "5. How much money is divided in each proposal?",
       options: [
         { value: "100_cents", label: "100 cents" },
         { value: "10_dollars", label: "10 dollars" },
