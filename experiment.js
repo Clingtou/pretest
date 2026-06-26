@@ -4,9 +4,10 @@
 */
 
 const DATAPIPE_EXPERIMENT_ID = "F9OQa1bKo1u6";
-const PROLIFIC_COMPLETION_CODE = "C1AHQXCV";
+const PROLIFIC_COMPLETION_CODE = "REPLACE_WITH_PROLIFIC_COMPLETION_CODE";
 const BASE_PAYMENT_USD = 1.00;
 const BONUS_DRAW_PERCENT = 10;
+const RADIUS_MANIPULATION_RATIO = 1.3;
 const STUDY_TITLE = "Decision-Making Study";
 document.title = STUDY_TITLE;
 
@@ -178,19 +179,24 @@ const positions = [
   { position_condition: "left", center_angle_degrees: 270 }
 ];
 
+const areaConditions = [
+  { area_condition: "you_larger", you_radius_multiplier: RADIUS_MANIPULATION_RATIO, other_radius_multiplier: 1 },
+  { area_condition: "other_larger", you_radius_multiplier: 1, other_radius_multiplier: RADIUS_MANIPULATION_RATIO }
+];
+
 function buildConditionTable() {
   const rows = [];
-  positions.forEach(function (position) {
-    rows.push({
-      condition_index: rows.length,
-      condition_label: `equal_radius_${position.position_condition}_you_blue_other_orange`,
-      area_condition: "equal_radius",
-      you_radius_multiplier: 1,
-      other_radius_multiplier: 1,
-      color_balance: "you_blue_other_orange",
-      you_color: OTHER_BLUE,
-      other_color: YOU_ORANGE,
-      ...position
+  areaConditions.forEach(function (area) {
+    positions.forEach(function (position) {
+      rows.push({
+        condition_index: rows.length,
+        condition_label: `${area.area_condition}_${position.position_condition}_you_blue_other_orange`,
+        color_balance: "you_blue_other_orange",
+        you_color: OTHER_BLUE,
+        other_color: YOU_ORANGE,
+        ...area,
+        ...position
+      });
     });
   });
   return rows;
@@ -839,10 +845,7 @@ function proposalDecisionTrial(condition, split, trialIndex) {
   const trialNumber = trialIndex + 1;
   const stimulusCondition = {
     ...condition,
-    ...split,
-    you_radius_multiplier: 1,
-    other_radius_multiplier: 1,
-    area_condition: "equal_radius"
+    ...split
   };
   const html = shellHtml(`
     <div class="stimulus-content pretest-decision-content">
@@ -879,9 +882,9 @@ function proposalDecisionTrial(condition, split, trialIndex) {
       you_cents: split.you,
       other_cents: split.other,
       amount_difference_cents: split.other - split.you,
-      area_condition: "equal_radius",
-      you_radius_multiplier: 1,
-      other_radius_multiplier: 1,
+      area_condition: condition.area_condition,
+      you_radius_multiplier: condition.you_radius_multiplier,
+      other_radius_multiplier: condition.other_radius_multiplier,
       position_condition: condition.position_condition,
       center_angle_degrees: condition.center_angle_degrees,
       color_balance: condition.color_balance,
@@ -963,10 +966,7 @@ function proposalEvaluationTrial(condition, split, trialIndex) {
   ];
   const stimulusCondition = {
     ...condition,
-    ...split,
-    you_radius_multiplier: 1,
-    other_radius_multiplier: 1,
-    area_condition: "equal_radius"
+    ...split
   };
   const html = shellHtml(`
     <form id="proposal-rating-form" class="stimulus-content pretest-rating-form" novalidate>
@@ -996,9 +996,9 @@ function proposalEvaluationTrial(condition, split, trialIndex) {
       you_cents: split.you,
       other_cents: split.other,
       amount_difference_cents: split.other - split.you,
-      area_condition: "equal_radius",
-      you_radius_multiplier: 1,
-      other_radius_multiplier: 1,
+      area_condition: condition.area_condition,
+      you_radius_multiplier: condition.you_radius_multiplier,
+      other_radius_multiplier: condition.other_radius_multiplier,
       position_condition: condition.position_condition,
       center_angle_degrees: condition.center_angle_degrees,
       color_balance: condition.color_balance,
