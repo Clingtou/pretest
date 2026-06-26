@@ -3,7 +3,7 @@
   Replace DATAPIPE_EXPERIMENT_ID and PROLIFIC_COMPLETION_CODE before launching on Prolific.
 */
 
-const DATAPIPE_EXPERIMENT_ID = "F9OQa1bKo1u6";
+const DATAPIPE_EXPERIMENT_ID = "REPLACE_WITH_DATAPIPE_EXPERIMENT_ID";
 const PROLIFIC_COMPLETION_CODE = "REPLACE_WITH_PROLIFIC_COMPLETION_CODE";
 const BASE_PAYMENT_USD = 1.00;
 const BONUS_DRAW_PERCENT = 10;
@@ -837,9 +837,10 @@ function proposalDecisionTrial(condition, split, trialIndex) {
   };
   const html = shellHtml(`
     <div class="stimulus-content pretest-decision-content">
-      <div class="offer-title">The other participant proposed this allocation of 100 cents.</div>
+      <div class="offer-title">Proposal ${trialNumber}：The other participant proposed this allocation of 100 cents.</div>
       <div class="offer-subtitle">
-        Choice ${trialNumber} of ${pretestSplits.length}. Please decide whether to accept or reject this proposal.
+        This is your <span class="doc-red">actual decision</span>.<br>
+        You can submit this decision <span class="doc-red">only once</span>. Please consider the proposal carefully before confirming your choice.
       </div>
       <div class="rose-wrap pretest-decision-rose-wrap">${roseChartHtml(stimulusCondition)}</div>
       <div class="decision-buttons vertical-decision-buttons">
@@ -854,7 +855,7 @@ function proposalDecisionTrial(condition, split, trialIndex) {
         </div>
       </div>
     </div>
-  `, STUDY_TITLE, "stimulus-shell choice-shell");
+  `, "Choice Stage", "stimulus-shell choice-shell");
 
   return {
     type: jsPsychHtmlKeyboardResponse,
@@ -960,9 +961,9 @@ function proposalEvaluationTrial(condition, split, trialIndex) {
   };
   const html = shellHtml(`
     <form id="proposal-rating-form" class="stimulus-content pretest-rating-form" novalidate>
-      <div class="offer-title">The other participant proposed this allocation of 100 cents.</div>
+      <div class="offer-title">Proposal ${trialNumber}：The other participant proposed this allocation of 100 cents.</div>
       <div class="offer-subtitle">
-        Evaluation ${trialNumber} of ${pretestSplits.length}. Please evaluate this proposal carefully.
+        Please evaluate this proposal carefully.
       </div>
       <div class="rose-wrap pretest-rose-wrap">${roseChartHtml(stimulusCondition)}</div>
       <div class="pretest-scale-panel">
@@ -971,7 +972,7 @@ function proposalEvaluationTrial(condition, split, trialIndex) {
       <button type="submit" class="form-submit">Next</button>
       <div id="proposal-rating-required" class="required-note">Please answer all questions before continuing.</div>
     </form>
-  `, STUDY_TITLE, "stimulus-shell");
+  `, "Evaluation Stage", "stimulus-shell");
 
   return {
     type: jsPsychHtmlKeyboardResponse,
@@ -1293,10 +1294,16 @@ function pretestTaskTrials(conditionInfo) {
   const trials = [stageMessageTrial("choice")];
   randomizedSplits.forEach(function (split, index) {
     trials.push(proposalDecisionTrial(conditionInfo, split, index));
+    if (index < randomizedSplits.length - 1) {
+      trials.push(recordedBlankTrial());
+    }
   });
   trials.push(stageMessageTrial("evaluation"));
   randomizedSplits.forEach(function (split, index) {
     trials.push(proposalEvaluationTrial(conditionInfo, split, index));
+    if (index < randomizedSplits.length - 1) {
+      trials.push(recordedBlankTrial());
+    }
   });
   trials.push(exitFullscreenBeforeFollowupTrial());
   return trials;

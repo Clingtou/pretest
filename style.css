@@ -410,19 +410,6 @@ li {
   margin: 14px auto;
 }
 
-.study-shell.choice-shell {
-  width: min(1040px, calc(100vw - 44px));
-  margin: 8px auto;
-}
-
-.study-shell.choice-shell .qualtrics-topbar {
-  padding: 15px 24px;
-}
-
-.study-shell.choice-shell .qualtrics-card {
-  padding: 16px 36px 18px 36px;
-}
-
 .stimulus-content {
   display: flex;
   flex-direction: column;
@@ -438,20 +425,11 @@ li {
   white-space: nowrap;
 }
 
-.choice-shell .offer-title {
-  font-size: 27px;
-  margin-bottom: 5px;
-}
-
 .offer-subtitle {
   width: 100%;
   font-size: 22px;
   color: var(--muted);
   margin: 0 0 2px 0;
-}
-
-.choice-shell .offer-subtitle {
-  font-size: 18px;
 }
 
 .rose-wrap {
@@ -464,27 +442,13 @@ li {
 }
 
 .pretest-rose-wrap {
-  min-height: 410px;
-  margin-top: -22px;
+  min-height: 500px;
+  margin-top: -10px;
 }
 
 .pretest-decision-rose-wrap {
-  min-height: 270px;
-  margin-top: -14px;
-}
-
-.choice-shell .rose-chart {
-  width: min(590px, 55vw);
-  height: min(292px, 31vw);
-  min-width: 520px;
-  min-height: 260px;
-}
-
-.pretest-rating-form .rose-chart {
-  width: min(720px, 60vw);
-  height: min(460px, 38vw);
-  min-width: 620px;
-  min-height: 410px;
+  min-height: 500px;
+  margin-top: -10px;
 }
 
 .pretest-scale-panel {
@@ -806,20 +770,6 @@ li {
 
   .rose-wrap {
     min-height: auto;
-  }
-
-  .choice-shell .rose-chart {
-    width: min(600px, 92vw);
-    height: min(320px, 54vw);
-    min-width: 0;
-    min-height: 0;
-  }
-
-  .pretest-rating-form .rose-chart {
-    width: min(720px, 94vw);
-    height: min(500px, 72vw);
-    min-width: 0;
-    min-height: 0;
   }
 
   .lowest-choice-grid {
