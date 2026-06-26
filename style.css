@@ -406,7 +406,7 @@ li {
 }
 
 .study-shell.stimulus-shell {
-  width: min(1160px, calc(100vw - 56px));
+  width: min(1260px, calc(100vw - 40px));
   margin: 14px auto;
 }
 

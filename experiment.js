@@ -839,7 +839,7 @@ function proposalDecisionTrial(condition, split, trialIndex) {
     <div class="stimulus-content pretest-decision-content">
       <div class="offer-title">Proposal ${trialNumber}：The other participant proposed this allocation of 100 cents.</div>
       <div class="offer-subtitle">
-        This is your <span class="doc-red">actual decision</span>.<br>
+        This is your <span class="doc-red">actual decision</span> for this proposal. Please decide whether to accept or reject it.<br>
         You can submit this decision <span class="doc-red">only once</span>. Please consider the proposal carefully before confirming your choice.
       </div>
       <div class="rose-wrap pretest-decision-rose-wrap">${roseChartHtml(stimulusCondition)}</div>
@@ -935,7 +935,7 @@ function proposalEvaluationTrial(condition, split, trialIndex) {
   const questions = [
     {
       name: "fairness_7",
-      text: "How fair or unfair do you think this proposal was?",
+      text: "How fair do you think this proposal was?",
       left: "1 = Very unfair",
       right: "7 = Very fair"
     },
