@@ -1286,7 +1286,7 @@ function postQuestionnaireTrials() {
       },
       {
         name: "sacrifice_payoff_for_fairness_7",
-        text: "Across the decisions, to what extent did you feel that it was worth giving up your own payoff in order to maintain fairness?",
+        text: "Across the decisions, to what extent did the differences between your amounts and the proposer\u2019s amounts affect your decisions?",
         left: "1 - Not at all",
         right: "7 - Very much"
       },
