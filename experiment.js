@@ -1280,19 +1280,19 @@ function postQuestionnaireTrials() {
     postScaleTrial([
       {
         name: "something_better_than_nothing_7",
-        text: "To what extent did you think, \u201cgetting something is better than getting nothing\u201d?",
+        text: "Across the decisions, to what extent did you think, \u201cgetting something is better than getting nothing\u201d?",
         left: "1 - Not at all",
         right: "7 - Very much"
       },
       {
         name: "sacrifice_payoff_for_fairness_7",
-        text: "To what extent did you feel that it was worth giving up your own payoff in order to maintain fairness?",
+        text: "Across the decisions, to what extent did you feel that it was worth giving up your own payoff in order to maintain fairness?",
         left: "1 - Not at all",
         right: "7 - Very much"
       },
       {
         name: "allocation_difference_hard_to_accept_7",
-        text: "To what extent did the difference between your amount and the proposer\u2019s amount make the proposal hard to accept?",
+        text: "Across the decisions, to what extent did the difference between your amount and the proposer\u2019s amount make the proposal hard to accept?",
         left: "1 - Not at all",
         right: "7 - Very much"
       }
