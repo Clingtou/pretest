@@ -175,10 +175,12 @@ const pretestSplits = [
 ];
 
 const positions = [
+  { position_condition: "left", center_angle_degrees: 270 },
   { position_condition: "right", center_angle_degrees: 90 }
 ];
 
 const areaConditions = [
+  { area_condition: "you_larger", you_radius_multiplier: RADIUS_MANIPULATION_RATIO, other_radius_multiplier: 1 },
   { area_condition: "other_larger", you_radius_multiplier: 1, other_radius_multiplier: RADIUS_MANIPULATION_RATIO }
 ];
 
@@ -1251,7 +1253,7 @@ function postOpenEndedTrial() {
       </form>
     `),
     choices: "NO_KEYS",
-    data: { phase: "post_questionnaire_page_5" },
+    data: { phase: "post_questionnaire_page_7" },
     on_load: function () {
       const pageStart = performance.now();
       const form = document.getElementById("post-open-form");
@@ -1263,9 +1265,9 @@ function postOpenEndedTrial() {
           warning.style.display = "none";
         }
         jsPsych.finishTrial({
-          post_questionnaire_page: 5,
+          post_questionnaire_page: 7,
           study_issue_comment: response.study_issue_comment.trim(),
-          post_page5_rt: Math.round(performance.now() - pageStart)
+          post_page7_rt: Math.round(performance.now() - pageStart)
         });
       });
     }
@@ -1275,6 +1277,34 @@ function postOpenEndedTrial() {
 function postQuestionnaireTrials() {
   return [
     postLowestAcceptTrial(),
+    postScaleTrial([
+      {
+        name: "something_better_than_nothing_7",
+        text: "To what extent did you think, \u201cgetting something is better than getting nothing\u201d?",
+        left: "1 - Not at all",
+        right: "7 - Very much"
+      },
+      {
+        name: "sacrifice_payoff_for_fairness_7",
+        text: "To what extent did you feel that it was worth giving up your own payoff in order to maintain fairness?",
+        left: "1 - Not at all",
+        right: "7 - Very much"
+      },
+      {
+        name: "allocation_difference_hard_to_accept_7",
+        text: "To what extent did the difference between your amount and the proposer\u2019s amount make the proposal hard to accept?",
+        left: "1 - Not at all",
+        right: "7 - Very much"
+      }
+    ], 5),
+    postScaleTrial([
+      {
+        name: "chart_influence_impression_7",
+        text: "Thinking back across the decisions, to what extent did the charts seem designed to influence your impression of the allocations?",
+        left: "1 - Not at all",
+        right: "7 - Very much"
+      }
+    ], 6),
     postOpenEndedTrial()
   ];
 }
