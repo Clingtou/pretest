@@ -188,6 +188,9 @@ function buildConditionTable() {
   const rows = [];
   areaConditions.forEach(function (area) {
     positions.forEach(function (position) {
+      if (area.area_condition === "you_larger" && position.position_condition === "right") {
+        return;
+      }
       rows.push({
         condition_index: rows.length,
         condition_label: `${area.area_condition}_${position.position_condition}_you_blue_other_orange`,
