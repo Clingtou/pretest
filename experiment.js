@@ -191,9 +191,8 @@ function buildConditionTable() {
   areaConditions.forEach(function (area) {
     positions.forEach(function (position) {
       const allowedCondition =
-        (area.area_condition === "equal_radius" && position.position_condition === "left") ||
         (area.area_condition === "you_larger" && position.position_condition === "left") ||
-        (area.area_condition === "other_larger" && position.position_condition === "right");
+        (area.area_condition === "other_larger" && position.position_condition === "left");
       if (!allowedCondition) {
         return;
       }
