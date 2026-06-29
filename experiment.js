@@ -176,12 +176,12 @@ const pretestSplits = [
 ];
 
 const positions = [
-  { position_condition: "left", center_angle_degrees: 270 }
+  { position_condition: "left", center_angle_degrees: 270 },
+  { position_condition: "right", center_angle_degrees: 90 }
 ];
 
 const areaConditions = [
-  { area_condition: "you_larger", you_radius_multiplier: RADIUS_MANIPULATION_RATIO, other_radius_multiplier: 1 },
-  { area_condition: "other_larger", you_radius_multiplier: 1, other_radius_multiplier: RADIUS_MANIPULATION_RATIO }
+  { area_condition: "equal_radius", you_radius_multiplier: 1, other_radius_multiplier: 1 }
 ];
 
 function buildConditionTable() {
