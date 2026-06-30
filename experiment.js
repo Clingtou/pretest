@@ -1319,6 +1319,13 @@ function postOpenEndedTrial() {
     `),
     choices: "NO_KEYS",
     data: { phase: "post_questionnaire_page_7" },
+    on_start: function () {
+      plannedFullscreenExit = true;
+      fullscreenAbortArmed = false;
+      if (currentFullscreenElement() && document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    },
     on_load: function () {
       const pageStart = performance.now();
       const form = document.getElementById("post-open-form");
@@ -1374,23 +1381,6 @@ function postQuestionnaireTrials() {
   ];
 }
 
-function exitFullscreenBeforeFollowupTrial() {
-  return {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: `<div class="recorded-blank">The evaluation stage is complete.</div>`,
-    choices: "NO_KEYS",
-    trial_duration: 500,
-    data: { phase: "exit_fullscreen_before_followup" },
-    on_start: function () {
-      plannedFullscreenExit = true;
-      fullscreenAbortArmed = false;
-      if (currentFullscreenElement() && document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-  };
-}
-
 function pretestTaskTrials() {
   const randomizedSplits = jsPsych.randomization.shuffle(pretestSplits);
   const trials = [stageMessageTrial("choice")];
@@ -1407,7 +1397,6 @@ function pretestTaskTrials() {
       trials.push(recordedBlankTrial());
     }
   });
-  trials.push(exitFullscreenBeforeFollowupTrial());
   return trials;
 }
 
