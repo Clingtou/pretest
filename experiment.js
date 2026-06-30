@@ -193,10 +193,10 @@ function buildConditionTable() {
     areaConditions.forEach(function (area) {
       rows.push({
         condition_index: rows.length,
-        condition_label: `${area.area_condition}_${position.position_condition}_you_blue_other_orange`,
-        color_balance: "you_blue_other_orange",
-        you_color: OTHER_BLUE,
-        other_color: YOU_ORANGE,
+        condition_label: `${area.area_condition}_${position.position_condition}_you_orange_other_blue`,
+        color_balance: "you_orange_other_blue",
+        you_color: YOU_ORANGE,
+        other_color: OTHER_BLUE,
         ...area,
         ...position
       });
