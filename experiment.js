@@ -28,6 +28,7 @@ let comprehensionAttempts = 0;
 let comprehensionPassed = false;
 let excludedForComprehension = false;
 let dataSavedToDatapipe = false;
+let assignedConditionInfo = null;
 
 function currentFullscreenElement() {
   return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || null;
@@ -181,13 +182,15 @@ const positions = [
 ];
 
 const areaConditions = [
-  { area_condition: "equal_radius", you_radius_multiplier: 1, other_radius_multiplier: 1 }
+  { area_condition: "equal_radius", you_radius_multiplier: 1, other_radius_multiplier: 1 },
+  { area_condition: "you_larger", you_radius_multiplier: RADIUS_MANIPULATION_RATIO, other_radius_multiplier: 1 },
+  { area_condition: "other_larger", you_radius_multiplier: 1, other_radius_multiplier: RADIUS_MANIPULATION_RATIO }
 ];
 
 function buildConditionTable() {
   const rows = [];
-  areaConditions.forEach(function (area) {
-    positions.forEach(function (position) {
+  positions.forEach(function (position) {
+    areaConditions.forEach(function (area) {
       rows.push({
         condition_index: rows.length,
         condition_label: `${area.area_condition}_${position.position_condition}_you_blue_other_orange`,
@@ -237,6 +240,43 @@ async function getDatapipeCondition() {
       source: "fallback_datapipe_error"
     };
   }
+}
+
+function getAssignedConditionInfo() {
+  if (!assignedConditionInfo) {
+    throw new Error("Condition has not been assigned yet.");
+  }
+  return assignedConditionInfo;
+}
+
+function assignCondition(conditionNumber, source) {
+  assignedConditionInfo = conditionTable[conditionNumber];
+  jsPsych.data.addProperties({
+    datapipe_condition_source: source,
+    condition_index: assignedConditionInfo.condition_index,
+    condition_label: assignedConditionInfo.condition_label
+  });
+  return assignedConditionInfo;
+}
+
+function conditionAssignmentTrial() {
+  return {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `<div class="study-shell"><div class="qualtrics-card standalone saving-card"><h2>Loading study...</h2><p>Please do not close this page.</p></div></div>`,
+    choices: "NO_KEYS",
+    data: { phase: "condition_assignment" },
+    on_load: async function () {
+      const assignmentStart = performance.now();
+      const { conditionNumber, source } = await getDatapipeCondition();
+      const conditionInfo = assignCondition(conditionNumber, source);
+      jsPsych.finishTrial({
+        datapipe_condition_source: source,
+        condition_index: conditionInfo.condition_index,
+        condition_label: conditionInfo.condition_label,
+        condition_assignment_rt: Math.round(performance.now() - assignmentStart)
+      });
+    }
+  };
 }
 
 function polarToCartesian(cx, cy, radius, angleDegrees) {
@@ -637,8 +677,8 @@ function instructionTrial() {
   };
 }
 
-function comprehensionTrial(conditionInfo) {
-  const questions = [
+function buildComprehensionQuestions(conditionInfo) {
+  return [
     {
       name: "role",
       text: "1. Which statement is correct about this study?",
@@ -702,7 +742,13 @@ function comprehensionTrial(conditionInfo) {
     }
   ];
 
-  const html = shellHtml(`
+}
+
+function comprehensionTrial() {
+  let questions = [];
+  const renderHtml = function () {
+    questions = buildComprehensionQuestions(getAssignedConditionInfo());
+    return shellHtml(`
     <form id="comprehension-form" novalidate>
       <h2 class="intro-title">Comprehension Check</h2>
       <p class="muted">Please answer the following questions to make sure you understand the rules.</p>
@@ -729,10 +775,11 @@ function comprehensionTrial(conditionInfo) {
       <div id="comprehension-required" class="required-note">Please answer all questions before continuing.</div>
     </form>
   `);
+  };
 
   return {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: html,
+    stimulus: renderHtml,
     choices: "NO_KEYS",
     data: { phase: "comprehension_check" },
     on_load: function () {
@@ -841,13 +888,15 @@ function stageMessageTrial(stage) {
   };
 }
 
-function proposalDecisionTrial(condition, split, trialIndex) {
+function proposalDecisionTrial(split, trialIndex) {
   const trialNumber = trialIndex + 1;
-  const stimulusCondition = {
-    ...condition,
-    ...split
-  };
-  const html = shellHtml(`
+  const renderHtml = function () {
+    const condition = getAssignedConditionInfo();
+    const stimulusCondition = {
+      ...condition,
+      ...split
+    };
+    return shellHtml(`
     <div class="stimulus-content pretest-decision-content">
       <div class="offer-title">Proposal ${trialNumber}：The other participant proposed this allocation of 100 cents.</div>
       <div class="offer-subtitle">
@@ -868,28 +917,35 @@ function proposalDecisionTrial(condition, split, trialIndex) {
       </div>
     </div>
   `, "Choice Stage", "stimulus-shell choice-shell");
+  };
 
   return {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: html,
+    stimulus: renderHtml,
     choices: "NO_KEYS",
     data: {
       phase: "pretest_choice",
-      condition_index: condition.condition_index,
-      condition_label: condition.condition_label,
       pretest_trial_number: trialNumber,
       split_id: split.split_id,
       you_cents: split.you,
       other_cents: split.other,
-      amount_difference_cents: split.other - split.you,
-      area_condition: condition.area_condition,
-      you_radius_multiplier: condition.you_radius_multiplier,
-      other_radius_multiplier: condition.other_radius_multiplier,
-      position_condition: condition.position_condition,
-      center_angle_degrees: condition.center_angle_degrees,
-      color_balance: condition.color_balance,
-      you_color: condition.you_color,
-      other_color: condition.other_color
+      amount_difference_cents: split.other - split.you
+    },
+    on_start: function (trial) {
+      const condition = getAssignedConditionInfo();
+      trial.data = {
+        ...trial.data,
+        condition_index: condition.condition_index,
+        condition_label: condition.condition_label,
+        area_condition: condition.area_condition,
+        you_radius_multiplier: condition.you_radius_multiplier,
+        other_radius_multiplier: condition.other_radius_multiplier,
+        position_condition: condition.position_condition,
+        center_angle_degrees: condition.center_angle_degrees,
+        color_balance: condition.color_balance,
+        you_color: condition.you_color,
+        other_color: condition.other_color
+      };
     },
     on_load: function () {
       const pageStart = performance.now();
@@ -942,14 +998,14 @@ function proposalDecisionTrial(condition, split, trialIndex) {
   };
 }
 
-function proposalEvaluationTrial(condition, split, trialIndex) {
+function proposalEvaluationTrial(split, trialIndex) {
   const trialNumber = trialIndex + 1;
   const questions = [
     {
       name: "fairness_7",
-      text: "How fair do you think this proposal was?",
-      left: "1 = Very unfair",
-      right: "7 = Very fair"
+      text: "How unfair do you think this proposal was?",
+      left: "1 = Not unfair at all",
+      right: "7 = Very unfair"
     },
     {
       name: "felt_amount_difference_7",
@@ -964,11 +1020,13 @@ function proposalEvaluationTrial(condition, split, trialIndex) {
       right: "7 = Extremely angry"
     }
   ];
-  const stimulusCondition = {
-    ...condition,
-    ...split
-  };
-  const html = shellHtml(`
+  const renderHtml = function () {
+    const condition = getAssignedConditionInfo();
+    const stimulusCondition = {
+      ...condition,
+      ...split
+    };
+    return shellHtml(`
     <form id="proposal-rating-form" class="stimulus-content pretest-rating-form" novalidate>
       <div class="offer-title">Proposal ${trialNumber}：The other participant proposed this allocation of 100 cents.</div>
       <div class="offer-subtitle">
@@ -982,28 +1040,35 @@ function proposalEvaluationTrial(condition, split, trialIndex) {
       <div id="proposal-rating-required" class="required-note">Please answer all questions before continuing.</div>
     </form>
   `, "Evaluation Stage", "stimulus-shell");
+  };
 
   return {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: html,
+    stimulus: renderHtml,
     choices: "NO_KEYS",
     data: {
       phase: "pretest_evaluation",
-      condition_index: condition.condition_index,
-      condition_label: condition.condition_label,
       pretest_trial_number: trialNumber,
       split_id: split.split_id,
       you_cents: split.you,
       other_cents: split.other,
-      amount_difference_cents: split.other - split.you,
-      area_condition: condition.area_condition,
-      you_radius_multiplier: condition.you_radius_multiplier,
-      other_radius_multiplier: condition.other_radius_multiplier,
-      position_condition: condition.position_condition,
-      center_angle_degrees: condition.center_angle_degrees,
-      color_balance: condition.color_balance,
-      you_color: condition.you_color,
-      other_color: condition.other_color
+      amount_difference_cents: split.other - split.you
+    },
+    on_start: function (trial) {
+      const condition = getAssignedConditionInfo();
+      trial.data = {
+        ...trial.data,
+        condition_index: condition.condition_index,
+        condition_label: condition.condition_label,
+        area_condition: condition.area_condition,
+        you_radius_multiplier: condition.you_radius_multiplier,
+        other_radius_multiplier: condition.other_radius_multiplier,
+        position_condition: condition.position_condition,
+        center_angle_degrees: condition.center_angle_degrees,
+        color_balance: condition.color_balance,
+        you_color: condition.you_color,
+        other_color: condition.other_color
+      };
     },
     on_load: function () {
       const pageStart = performance.now();
@@ -1326,18 +1391,18 @@ function exitFullscreenBeforeFollowupTrial() {
   };
 }
 
-function pretestTaskTrials(conditionInfo) {
+function pretestTaskTrials() {
   const randomizedSplits = jsPsych.randomization.shuffle(pretestSplits);
   const trials = [stageMessageTrial("choice")];
   randomizedSplits.forEach(function (split, index) {
-    trials.push(proposalDecisionTrial(conditionInfo, split, index));
+    trials.push(proposalDecisionTrial(split, index));
     if (index < randomizedSplits.length - 1) {
       trials.push(recordedBlankTrial());
     }
   });
   trials.push(stageMessageTrial("evaluation"));
   randomizedSplits.forEach(function (split, index) {
-    trials.push(proposalEvaluationTrial(conditionInfo, split, index));
+    trials.push(proposalEvaluationTrial(split, index));
     if (index < randomizedSplits.length - 1) {
       trials.push(recordedBlankTrial());
     }
@@ -1436,15 +1501,6 @@ async function buildAndRunExperiment() {
     return;
   }
 
-  const { conditionNumber, source } = await getDatapipeCondition();
-  const conditionInfo = conditionTable[conditionNumber];
-
-  jsPsych.data.addProperties({
-    datapipe_condition_source: source,
-    condition_index: conditionInfo.condition_index,
-    condition_label: conditionInfo.condition_label
-  });
-
   timeline.push({
     type: jsPsychPreload,
     images: ["ModifiedMullerLyer.png"],
@@ -1501,18 +1557,19 @@ async function buildAndRunExperiment() {
     }
   });
 
+  timeline.push(conditionAssignmentTrial());
   timeline.push(instructionTrial());
-  timeline.push(comprehensionTrial(conditionInfo));
+  timeline.push(comprehensionTrial());
 
   timeline.push({
-    timeline: [warningTrial(), instructionTrial(), comprehensionTrial(conditionInfo)],
+    timeline: [warningTrial(), instructionTrial(), comprehensionTrial()],
     conditional_function: function () {
       return !comprehensionPassed && !excludedForComprehension;
     }
   });
 
   timeline.push({
-    timeline: [...pretestTaskTrials(conditionInfo), ...postQuestionnaireTrials()],
+    timeline: [...pretestTaskTrials(), ...postQuestionnaireTrials()],
     conditional_function: function () {
       return comprehensionPassed;
     }
